@@ -1,0 +1,22 @@
+
+
+article:
+  name: article
+  version: 1
+  has_mdl: True
+  has_sitemap: True
+  route:
+    route_prefix: article
+    tags: 
+    - 文章模块
+
+site_maps:
+  db_sites: 
+    article:
+      mdls: 
+      - table: Article
+        link_key: link
+        lastmod_key: update_date
+        prefix: article/ # url的前缀
+      priority: 0.9
+      changefreq: daily
