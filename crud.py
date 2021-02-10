@@ -10,7 +10,7 @@ from app.models.settings.crud import settings
 def return_filter(article,db: Session):
     # 将图片名称转换为一个对象
     if article.image is not None:
-        article.image = {"name":article.image, "url":settings["domain_port"] + "/photo/" + article.image}
+        article.image = {"name":article.image, "url":settings.value["domain_port"] + "/photo/" + article.image}
     else:
         article.image = {"name":"", "url":""}
     # 增加个分类名称的字段
