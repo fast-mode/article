@@ -3,7 +3,7 @@ from .. import mdl
 from app.models.settings.crud import settings
 
 def image(im_name):
-    return settings.value["domain_port"] + "/" + im_name
+    return settings.value["domain_port"] + "/photo/" + im_name
 
 def page(db, request, templates, link):
     try:
