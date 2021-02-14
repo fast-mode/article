@@ -1,9 +1,11 @@
 import os
-from .. import mdl
+from . import mdl
 from app.models.settings.crud import settings
 
 def image(im_name):
     return settings.value["domain_port"] + "/photo/" + im_name
+
+# def category
 
 def page(db, request, templates, link):
     try:
