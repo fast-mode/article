@@ -20,3 +20,14 @@ site_maps:
         prefix: article/ # url的前缀
       priority: 0.9
       changefreq: daily
+  
+render:
+  article:
+    prefix: /article # url的前缀
+    funs:
+      page: 
+        prefix: /show
+        description: 文章的详情页
+        link_para: 
+        - link
+        query_para: []
