@@ -1,8 +1,9 @@
 import os
 from .. import mdl
+from app.models.settings.crud import settings
 
-def myfun():
-    return "abc"
+def image(im_name):
+    return settings.value["domain_port"] + "/" + im_name
 
 def page(db, request, templates, link):
     try:
@@ -13,7 +14,7 @@ def page(db, request, templates, link):
             data['prevData'] = article.__dict__
             data['nextData'] = article.__dict__
             data['request'] = request
-            data['myfun'] = myfun
+            data['image'] = image
             print("正常")
             return templates.TemplateResponse("article/show.html", data)
         else:
