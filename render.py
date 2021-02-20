@@ -1,6 +1,7 @@
 import os
 from . import mdl
 from app.models.settings.crud import settings
+from app.models.search.crud import Moudle
 
 class Render():
     # 现在的分类id 
@@ -20,13 +21,14 @@ class Render():
             return rt
 
     # 数据库搜索,
-    def find(self, db_name, type, count):
+    def Moudle(self, db_name, type, count):
+        return Moudle(self.db, db_name, type, count, [self.category_id])
         # 搜索同分类下文章
-        if type == "same_category":
-            rt = self.db.query(mdl.Article).filter(mdl.Article.category_id == self.category_id).limit(count).all()
-            return rt
-        else:
-            return None
+        # if type == "same_category":
+        #     rt = self.db.query(mdl.Article).filter(mdl.Article.category_id == self.category_id).limit(count).all()
+        #     return rt
+        # else:
+        #     return None
 
     def page(self, db, request, templates, link):
         try:
@@ -41,7 +43,7 @@ class Render():
                 data['request'] = request
                 data['image'] = self.image
                 data['category'] = self.category
-                data['find'] = self.find
+                data['Moudle'] = self.Moudle
                 print("正常")
                 return templates.TemplateResponse("article/show.html", data)
             else:
