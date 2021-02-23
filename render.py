@@ -1,7 +1,7 @@
 import os
 from . import mdl
 from app.models.settings.crud import settings
-from app.models.search.crud import Moudle
+from app.models.search.crud import db_search
 
 class Render():
     # 现在的分类id 
@@ -21,8 +21,8 @@ class Render():
             return rt
 
     # 数据库搜索,
-    def Moudle(self, db_name, type, count):
-        return Moudle(self.db, db_name, type, count, [self.category_id])
+    def db_search(self, db_name, type, count):
+        return db_search(self.db, db_name, type, count, [self.category_id])
         # 搜索同分类下文章
         # if type == "same_category":
         #     rt = self.db.query(mdl.Article).filter(mdl.Article.category_id == self.category_id).limit(count).all()
@@ -36,20 +36,31 @@ class Render():
             self.category_id = article.category_id
             self.db = db
             if article != None and os.path.exists("files/templates/article/show.html"):
-                data = {}
+                data = {'request':request}
                 data['pageData'] = article.__dict__
                 data['prevData'] = article.__dict__
                 data['nextData'] = article.__dict__
-                data['request'] = request
                 data['image'] = self.image
                 data['category'] = self.category
-                data['Moudle'] = self.Moudle
+                data['DB_Search'] = self.db_search
                 print("正常")
                 return templates.TemplateResponse("article/show.html", data)
             else:
                 print("检测出404" + str(article != None) + str(os.path.exists("files/templates/article/show.html")))
                 return templates.TemplateResponse('404.html',{'request':request,'err':"no error"})
         except Exception as e:
-            print("错误404")
+            print("发生错误")
+            print(str(e))
             return templates.TemplateResponse('404.html',{'request':request,'err':str(e)})
 
+    def list(self, db, request, templates, category_id, page):
+        try:
+            context = db_search(db, "Article", "same_category", 15, [category_id, page])
+            # 判断有无
+            data = {'request':request}
+            data['pageData'] = context
+            return templates.TemplateResponse("article/list.html", data)
+            
+        except Exception as e:
+            print(str(e))
+            return templates.TemplateResponse('404.html',{'request':request,'err':str(e)})

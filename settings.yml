@@ -31,3 +31,18 @@ render:
         link_para: 
         - link
         query_para: []
+      list:
+        prefix: /list
+        description: 文章列表页
+        link_para: 
+        - category_id
+        - page
+        query_para: []
+      
+auths:
+  arti-edit-self:
+    default: true
+    description: 编辑自己文章
+  arti-edit-other: 
+    default: false
+    description: 编辑他人文章
