@@ -25,7 +25,7 @@ class Render():
         return db_search(self.db, db_name, type, count, [self.category_id])
 
     def page(self, db, request, templates, link):
-        try:
+        # try:
             article = db.query(mdl.Article).filter(mdl.Article.link == link).first()
             self.category_id = article.category_id
             self.db = db
@@ -42,10 +42,10 @@ class Render():
             else:
                 print("检测出404" + str(article != None) + str(os.path.exists("files/templates/article/show.html")))
                 return templates.TemplateResponse('404.html',{'request':request,'err':"no error"})
-        except Exception as e:
-            print("发生错误")
-            print(str(e))
-            return templates.TemplateResponse('404.html',{'request':request,'err':str(e)})
+        # except Exception as e:
+        #     print("发生错误")
+        #     print(str(e))
+        #     return templates.TemplateResponse('404.html',{'request':request,'err':str(e)})
 
     def list(self, db, request, templates, category_id, page):
         try:
