@@ -31,7 +31,7 @@ class Render():
             if article != None:
                 self.category_id = article.category_id
                 self.db = db
-                if article != None and os.path.exists("files/templates/article/show.html"):
+                if os.path.exists("files/templates/article/show.html"):
                     data = {'request':request}
                     data['pageData'] = article.__dict__
                     data['prevData'] = article.__dict__
@@ -43,7 +43,7 @@ class Render():
                     return templates.TemplateResponse("article/show.html", data)
                 else:
                     print("检测出404" + str(article != None) + str(os.path.exists("files/templates/article/show.html")))
-                    return templates.TemplateResponse('404.html',{'request':request,'err':"no error"})
+                    return templates.TemplateResponse('404.html',{'request':request,'err':"模版不存在"})
             else:
                 return templates.TemplateResponse('404.html',{'request':request,'err':"找不到文章"})
         # except Exception as e:
