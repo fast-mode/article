@@ -45,14 +45,16 @@ def update(
     now_user:User = Depends(check_token),
     db: Session=Depends(database.get_db)):
     # 如果有编辑所有权限
-    if now_user.check_auth(9):
-        return crud.update(db,article)
-    else:
-        owner_id = crud.get_owner_id(db,article.id)
-        if owner_id == now_user.id: 
-            return crud.update(db,article)
-        else:
-            raise HTTPException(status_code=403,detail='权限不足')
+    # if now_user.check_auth(9):
+    # TODO
+    now_user.into_auth("arti_edit_self")
+    return crud.update(db,article)
+    # else:
+    #     owner_id = crud.get_owner_id(db,article.id)
+    #     if owner_id == now_user.id: 
+    #         return crud.update(db,article)
+    #     else:
+    #         raise HTTPException(status_code=403,detail='权限不足')
 
 # release
 @bp.put('/release',description='发布,true为可检索false为不可检索')
