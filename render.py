@@ -52,13 +52,13 @@ class Render():
         #     return templates.TemplateResponse('404.html',{'request':request,'err':str(e)})
 
     def list(self, db, request, templates, category_id, page):
-        try:
+        # try:
             context = db_search(db, "Article", "same_category", 15, [category_id, page])
             # 判断有无
             data = {'request':request}
             data['pageData'] = context
             return templates.TemplateResponse("article/list.html", data)
             
-        except Exception as e:
-            print(str(e))
-            return templates.TemplateResponse('404.html',{'request':request,'err':str(e)})
+        # except Exception as e:
+        #     print(str(e))
+        #     return templates.TemplateResponse('404.html',{'request':request,'err':str(e)})
