@@ -40,9 +40,9 @@ render:
         query_para: []
       
 auths:
-  arti-edit-self:
+  arti_edit_self:
     default: true
     description: 编辑自己文章
-  arti-edit-other: 
+  arti_edit_all: 
     default: false
     description: 编辑他人文章

@@ -23,12 +23,6 @@ class Render():
     # 数据库搜索,
     def db_search(self, db_name, type, count):
         return db_search(self.db, db_name, type, count, [self.category_id])
-        # 搜索同分类下文章
-        # if type == "same_category":
-        #     rt = self.db.query(mdl.Article).filter(mdl.Article.category_id == self.category_id).limit(count).all()
-        #     return rt
-        # else:
-        #     return None
 
     def page(self, db, request, templates, link):
         try:

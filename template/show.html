@@ -1,0 +1,63 @@
+{% extends "layout/base.html" %}
+{% block content %}
+{% set near_article = DB_Search("Article", "same_category", 10) %}
+<main>
+    <div class="p-4 px-5">
+        <div class="row">
+            <section class="left-nav col-md-4">
+                <div class="category">
+                    <h3 class="h5">文章分类</h3>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            A list item
+                            <span class="badge badge-primary badge-pill">14</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            A second list item
+                            <span class="badge badge-primary badge-pill">2</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            A third list item
+                            <span class="badge badge-primary badge-pill">1</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="same-content-page mt-3">
+                    <h3 class="h5">相关文章</h3>
+                    <ul class="list-group">
+                        {% for i in near_article %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="{{ i.link }}">
+                                {{ i.title }}
+                            </a>
+                                <span class="badge badge-primary badge-pill">14</span>
+                        </li>
+                        {% endfor %}
+                        <!-- <li class="list-group-item d-flex justify-content-between align-items-center">
+                            A second list item
+                            <span class="badge badge-primary badge-pill">2</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            A third list item
+                            <span class="badge badge-primary badge-pill">1</span>
+                        </li> -->
+                    </ul>
+                </div>
+                <div class="content-tags mt-3">
+                    <span class="badge badge-light">{{pageData.seo_keywords}}</span>
+                </div>
+            </section>
+            <section class="right-content col-md-8">
+                <div>
+
+                    <img src="{{image(pageData.image)}}"
+                    <h1 class="h3">{{pageData.title}}</h1>
+                    <article class="content">
+                        {{pageData.content}}
+                    </article>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+{% endblock %}

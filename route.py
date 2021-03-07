@@ -35,10 +35,8 @@ def create(
     now_user:User = Depends(check_token),
     db: Session=Depends(database.get_db)):
     #  
-    if now_user.check_auth(8):
-        return crud.create(db,article,now_user.id)
-    else:
-        raise HTTPException(status_code=403,detail='权限不足')
+    now_user.into_auth("arti_edit_self")
+    return crud.create(db,article,now_user.id)
 
 # update
 @bp.put('/update',description='更更更更更更新')
@@ -99,10 +97,8 @@ def read_all_of_the_server(
     db: Session=Depends(database.get_db),
     ):
     #
-    if now_user.check_auth(11):
-        return crud.get_all_articles(db)
-    else:
-        raise HTTPException(status_code=403,detail='权限不足')
+    now_user.into_auth("arti_edit_all")
+    return crud.get_all_articles(db)
 
 @bp.get('/self/readone/{id}',description='读取一篇文章')
 def read_one(
