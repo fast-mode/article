@@ -9,7 +9,8 @@ class Render():
     db = None
 
     def image(self, im_name):
-        return settings.value["domain_port"] + "/photo/" + im_name
+        return ""
+        # return settings.value["domain_port"] + "/photo/" + im_name
 
     def category(self, count = 10):
         from app.models.tree.crud import get_jsondata
