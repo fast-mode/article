@@ -57,6 +57,8 @@ class Render():
             # 判断有无
             data = {'request':request}
             data['pageData'] = context
+            data['category'] = self.category
+            data['DB_Search'] = self.db_search
             return templates.TemplateResponse("article/list.html", data)
             
         # except Exception as e:
