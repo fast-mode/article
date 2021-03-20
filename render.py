@@ -2,6 +2,7 @@ import os
 from . import mdl
 from app.models.settings.crud import settings
 from app.models.search.crud import db_search
+from app.models.page.crud import Page
 
 class Render():
     # 现在的分类id 
@@ -25,41 +26,39 @@ class Render():
     def db_search(self, db_name, type, count):
         return db_search(self.db, db_name, type, count, [self.category_id])
 
-    def page(self, db, request, templates, link):
+    def page(self, db, request, link):
+        pg = Page(request)
         # try:
-            article = db.query(mdl.Article).filter(mdl.Article.link == link).first()
-            if article != None:
-                self.category_id = article.category_id
-                self.db = db
-                if os.path.exists("files/templates/article/show.html"):
-                    data = {'request':request}
-                    data['pageData'] = article.__dict__
-                    data['prevData'] = article.__dict__
-                    data['nextData'] = article.__dict__
-                    data['image'] = self.image
-                    data['category'] = self.category
-                    data['DB_Search'] = self.db_search
-                    print("正常")
-                    return templates.TemplateResponse("article/show.html", data)
-                else:
-                    print("检测出404" + str(article != None) + str(os.path.exists("files/templates/article/show.html")))
-                    return templates.TemplateResponse('404.html',{'request':request,'err':"模版不存在"})
-            else:
-                return templates.TemplateResponse('404.html',{'request':request,'err':"找不到文章"})
+        article = db.query(mdl.Article).filter(mdl.Article.link == link).first()
+        if article != None:
+            self.category_id = article.category_id
+            self.db = db
+            data = {}
+            data['pageData'] = article.__dict__
+            data['prevData'] = article.__dict__
+            data['nextData'] = article.__dict__
+            data['image'] = "暂时数据"
+            data['category'] = self.category
+            data['DB_Search'] = self.db_search
+            return pg.show_page("article/show.html", data)
+        else:
+            return pg.show_404_page("找不到文章")  # templates.TemplateResponse('404.html',{'request':request,'err':"找不到文章"})
         # except Exception as e:
         #     print("发生错误")
         #     print(str(e))
         #     return templates.TemplateResponse('404.html',{'request':request,'err':str(e)})
 
-    def list(self, db, request, templates, category_id, page):
+    def list(self, db, request, category_id, page):
+        pg = Page(request)
         # try:
-            context = db_search(db, "Article", "same_category", 15, [category_id, page])
-            # 判断有无
-            data = {'request':request}
-            data['pageData'] = context
-            data['category'] = self.category
-            data['DB_Search'] = self.db_search
-            return templates.TemplateResponse("article/list.html", data)
+        context = db_search(db, "Article", "same_category", 15, [category_id, page])
+        # 判断有无
+        data = {}
+        data['image'] = "暂时数据"
+        data['pageData'] = context
+        data['category'] = self.category
+        data['DB_Search'] = self.db_search
+        return pg.show_page("article/list.html", data)
             
         # except Exception as e:
         #     print(str(e))
