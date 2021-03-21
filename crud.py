@@ -5,12 +5,13 @@ from . import mdl, orm
 from datetime import datetime
 import random
 from app.models.settings.crud import settings
+from app.models.assets.crud import Assets
 
 # 插入category_name到文章数据里
 def return_filter(article,db: Session):
     # 将图片名称转换为一个对象
     if article.image is not None:
-        article.image = {"name":article.image, "url":settings.value["domain_port"] + "/photo/" + article.image}
+        article.image = {"name":article.image, "url":Assets.path_to_link(article.image)}
     else:
         article.image = {"name":"", "url":""}
     # 增加个分类名称的字段
