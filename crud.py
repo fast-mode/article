@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.user.mdl import User
-from app.models.tree.crud import id_to_name
+# from app.models.tree.crud import id_to_name
 from . import mdl, orm
 from datetime import datetime
 import random
@@ -105,6 +105,6 @@ def delete(db: Session, article_id: int):
     return article_id
 
 def real_delete(db: Session, article_id: int):
-    db.query(mdl.Article).filter(mdl.Article.id == article_id).update({"status":-1})
+    db.query(mdl.Article).filter(mdl.Article.id == article_id).delete()
     db.commit()
     return article_id

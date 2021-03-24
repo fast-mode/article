@@ -3,6 +3,7 @@ from . import mdl
 from app.models.settings.crud import settings
 from app.models.search.crud import db_search
 from app.models.page.crud import Page
+from app.models.assets.crud import Assets
 
 class Render():
     # 现在的分类id 
@@ -37,7 +38,7 @@ class Render():
             data['pageData'] = article.__dict__
             data['prevData'] = article.__dict__
             data['nextData'] = article.__dict__
-            data['image'] = "暂时数据"
+            data['image'] = Assets.get_link_prefix(article.image)
             data['category'] = self.category
             data['DB_Search'] = self.db_search
             return pg.show_page("article/show.html", data)
@@ -50,16 +51,15 @@ class Render():
 
     def list(self, db, request, category_id, page):
         pg = Page(request)
-        # try:
-        context = db_search(db, "Article", "same_category", 15, [category_id, page])
+        context = db.query(mdl.Article).filter(mdl.Article.category_id == category_id).limit(10).all()
         # 判断有无
         data = {}
-        data['image'] = "暂时数据"
+        data['image'] = "暂未有数据"
         data['pageData'] = context
         data['category'] = self.category
         data['DB_Search'] = self.db_search
         return pg.show_page("article/list.html", data)
-            
-        # except Exception as e:
-        #     print(str(e))
-        #     return templates.TemplateResponse('404.html',{'request':request,'err':str(e)})
+
+    def commit_data_insert(self, context):
+        rt = {}
+        rt['image'] = context.image
