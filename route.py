@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException, Depends,Header
+from app.models.page.crud import Page
+from fastapi import APIRouter, HTTPException, Depends,Header,Request
 from enum import Enum
 from sqlalchemy.orm import Session
-from app.models import database
-from . import orm, crud
+from app.models.mdl import database
+from . import orm, crud, render
 from app.main import check_token
 from app.models.user.mdl import User
 
@@ -145,3 +146,11 @@ def real_delete(
             return crud.real_delete(db,id)
         else:
             raise HTTPException(status_code=403,detail='权限不足')
+
+p = Page()
+
+@bp.get('/test/{params:path}')
+@p.wrap()
+def test(db,a,b):
+    print(a)
+    return "render.show(db, request, (1))"

@@ -36,7 +36,6 @@ render:
         description: 文章列表页
         link_para: 
         - category_id
-        - page
         query_para: []
       
 auths:

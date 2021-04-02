@@ -2,8 +2,9 @@ import os
 from . import mdl
 from app.models.settings.crud import settings
 from app.models.search.crud import db_search
-from app.models.page.crud import Page
+from app.models.page.crud import Page, page
 from app.models.assets.crud import Assets
+
 
 class Render():
     # 现在的分类id 
@@ -49,7 +50,7 @@ class Render():
         #     print(str(e))
         #     return templates.TemplateResponse('404.html',{'request':request,'err':str(e)})
 
-    def list(self, db, request, category_id, page):
+    def list(self, db, request, category_id):
         pg = Page(request)
         context = db.query(mdl.Article).filter(mdl.Article.category_id == category_id).limit(10).all()
         # 判断有无
@@ -63,3 +64,14 @@ class Render():
     def commit_data_insert(self, context):
         rt = {}
         rt['image'] = context.image
+
+# @page
+def show(db, link:tuple):
+    article = db.query(mdl.Article).filter(mdl.Article.link == link).first()
+    if article != None:
+            data = {}
+            data['pageData'] = article.__dict__
+            data['prevData'] = article.__dict__
+            data['nextData'] = article.__dict__
+            # data['image'] = Assets.get_link_prefix(article.image)
+            return ("article/show.html", data)
