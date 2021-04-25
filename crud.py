@@ -15,7 +15,7 @@ def return_filter(article,db: Session):
     else:
         article.image = {"name":"", "url":""}
     # 增加个分类名称的字段
-    article.category_name = id_to_name(db, article.category_id)
+    # article.category_name = id_to_name(db, article.category_id)
     return article
 
 # 读取一个页面
