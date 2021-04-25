@@ -65,8 +65,7 @@ def create(db: Session,data: orm.ArticleCreate,owner_id):
     # 用map新建对象,准备创建
     new_Article = mdl.Article(**data_map)
     # 创建当时的时间戳
-    new_Article.create_date = datetime.now()
-    new_Article.update_date = datetime.now()
+    new_Article.create_stamp()
     new_Article.owner_id = owner_id
     db.add(new_Article)
     db.commit()
@@ -78,7 +77,7 @@ def create(db: Session,data: orm.ArticleCreate,owner_id):
 
 def update(db: Session, data: orm.ArticleUpdate):
     new_data = data.dict()
-    if data.link == None:
+    if data.link is None:
         del new_data["link"]
     # 增加一个更新时间戳来更新数据库
     new_data["update_date"] = datetime.now()
