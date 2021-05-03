@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Depends, Header, Request
 from enum import Enum
 from sqlalchemy.orm import Session
 from app.models.mdl import database
-from . import orm, crud, render, mdl
+from . import orm, crud, mdl
 from app.models.system import token
 from app.models.user.mdl import User
 from ...models.assets.crud import Assets
@@ -202,3 +202,22 @@ def show(db, link: str):
                 # 'DB_Search': self.db_search,
                 }
         return 'article/show.html', data, get_show_creator
+
+
+def get_category_list_creator():
+    rt = Html('分类列表页面')
+    rt.body.addElement('成功进入分类列表页面')
+    return rt
+
+
+@pg_bp.get('/list/{params:path}', description='参数有一个:category_id')
+@p.wrap()
+def list_in_category(db, category_id: str):
+    context = db.query(mdl.Article).filter(mdl.Article.category_id == category_id).limit(10).all()
+    data = {
+        'image': "暂未有数据",
+        'pageData': context,
+        # 'category': self.category,
+        # 'DB_Search': self.db_search
+    }
+    return 'article/list.html', data, get_category_list_creator
