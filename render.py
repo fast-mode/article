@@ -4,6 +4,7 @@ from app.models.settings.crud import settings
 from app.models.search.crud import db_search
 from app.models.page.crud import Page, page
 from app.models.assets.crud import Assets
+from ...models.template.Template import Template
 
 
 class Render():
@@ -44,7 +45,7 @@ class Render():
             data['DB_Search'] = self.db_search
             return pg.show_page("article/show.html", data)
         else:
-            return pg.show_404_page("找不到文章")  # templates.TemplateResponse('404.html',{'request':request,'err':"找不到文章"})
+            return Template.response_404(request, '文章不存在')  # templates.TemplateResponse('404.html',{'request':request,'err':"找不到文章"})
         # except Exception as e:
         #     print("发生错误")
         #     print(str(e))
