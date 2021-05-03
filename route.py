@@ -1,13 +1,18 @@
+from HtmlCreator import Html
+
 from app.models.page.crud import Page
 from fastapi import APIRouter, HTTPException, Depends, Header, Request
 from enum import Enum
 from sqlalchemy.orm import Session
 from app.models.mdl import database
-from . import orm, crud, render
+from . import orm, crud, render, mdl
 from app.models.system import token
 from app.models.user.mdl import User
+from ...models.assets.crud import Assets
+from ...models.template.Template import Template
 
 bp = APIRouter()
+
 
 # bp.route('/view')
 
@@ -33,6 +38,7 @@ class ArticleStatus(str, Enum):
         else:
             return 10
 
+
 # create
 
 
@@ -44,6 +50,7 @@ def create(
     #
     now_user.into_auth("arti_edit_self")
     return crud.create(db, article, now_user.id)
+
 
 # update
 
@@ -65,6 +72,7 @@ def update(
     #     else:
     #         raise HTTPException(status_code=403,detail='权限不足')
 
+
 # release
 
 
@@ -79,6 +87,7 @@ def release(
         return crud.release(db, article)
     else:
         raise HTTPException(status_code=403, detail='权限不足')
+
 
 # release
 
@@ -95,25 +104,28 @@ def to_outline(
     else:
         raise HTTPException(status_code=403, detail='权限不足')
 
+
 # read
 
 
-@bp.get('/self/articles/{status}', description='读取自己的文章,注意在url中加入状态,trash垃圾箱 outline草稿箱 online已发布 noseacrh已发布不索引 all全部,索引分别为0,1,2,3,10')
+@bp.get('/self/articles/{status}',
+        description='读取自己的文章,注意在url中加入状态,trash垃圾箱 outline草稿箱 online已发布 noseacrh已发布不索引 all全部,索引分别为0,1,2,3,10')
 def read_self_all(
-    status: ArticleStatus,
-    now_user: User = Depends(token.get_token_func()),
-    db: Session = Depends(database.get_db),
+        status: ArticleStatus,
+        now_user: User = Depends(token.get_token_func()),
+        db: Session = Depends(database.get_db),
 ):
     # print(status.toInt())
     return crud.get_user_articles(db, now_user, status.toInt())
+
 
 # read_all
 
 
 @bp.get('/all/articles', description='读取所有的文章,admin的权限')
 def read_all_of_the_server(
-    now_user: User = Depends(token.get_token_func()),
-    db: Session = Depends(database.get_db),
+        now_user: User = Depends(token.get_token_func()),
+        db: Session = Depends(database.get_db),
 ):
     #
     now_user.into_auth("arti_edit_all")
@@ -124,7 +136,7 @@ def read_all_of_the_server(
 def read_one(
         id,
         now_user: User = Depends(token.get_token_func()),
-        db: Session = Depends(database.get_db),):
+        db: Session = Depends(database.get_db), ):
     #
     if crud.get_owner_id(db, id) == now_user.id:
         return crud.read_one_page(db, id)
@@ -166,11 +178,27 @@ def real_delete(
             raise HTTPException(status_code=403, detail='权限不足')
 
 
+# 下面是关于页面渲染的代码
+pg_bp = APIRouter()
 p = Page()
 
 
-@bp.get('/test/{params:path}')
+def get_show_creator():
+    rt = Html('默认文章页面')
+    rt.body.addElement('成功进入{{ pageData.link }}页面')
+    return rt
+
+
+@pg_bp.get('/show/{params:path}', description='参数只有一个:link(暂时为id)')
 @p.wrap()
-def test(db, a, b):
-    print(a)
-    return "render.show(db, request, (1))"
+def show(db, link: str):
+    article: mdl.Article = db.query(mdl.Article).filter(mdl.Article.link == link).first()
+    if article is not None:
+        data = {'pageData': article.__dict__,
+                'prevData': article.__dict__,
+                'nextData': article.__dict__,
+                'image': Assets.path_to_link(article.image),
+                'category': article.category_id,
+                # 'DB_Search': self.db_search,
+                }
+        return 'article/show.html', data, get_show_creator
