@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, Depends, Header, Request
 from enum import Enum
 from sqlalchemy.orm import Session
 from app.models.mdl import database
-from . import orm, crud, mdl
+from . import orm, mdl
 from app.models.system import token
 from app.models.user.mdl import User
 from ...models.assets.crud import Assets
@@ -49,9 +49,19 @@ def create(
         article: orm.ArticleCreate,
         now_user: User = Depends(token.get_token_func()),
         db: Session = Depends(database.get_db)):
-    #
     now_user.into_auth("arti_edit_self")
-    return crud.create(db, article, now_user.id)
+    data_map: dict = article.dict_when_create()
+    data_map['link'] = 'gg'
+    # 用map新建对象,准备创建
+    new_article = mdl.Article(**data_map)
+    new_article.owner_id = now_user.id
+    db.add(new_article)
+    db.commit()
+    # 改用id作为连接
+    db.refresh(new_article)
+    new_article.link = str(new_article.id)
+    db.commit()
+    return {"id": new_article.id}
 
 
 # update
@@ -59,19 +69,17 @@ def create(
 
 @bp.put('/update', description='更更更更更更新')
 def update(
-        article: orm.ArticleUpdate,
+        id: int,
+        article: orm.ArticleCreate,
         now_user: User = Depends(token.get_token_func()),
         db: Session = Depends(database.get_db)):
     # 如果有编辑所有权限
     # TODO
     now_user.into_auth("arti_edit_self")
-    return crud.update(db, article)
-    # else:
-    #     owner_id = crud.get_owner_id(db,article.id)
-    #     if owner_id == now_user.id:
-    #         return crud.update(db,article)
-    #     else:
-    #         raise HTTPException(status_code=403,detail='权限不足')
+    # 增加一个更新时间戳来更新数据库
+    db.query(mdl.Article).filter(mdl.Article.id == id).update(article.dict_when_update())
+    db.commit()
+    return True
 
 
 # @bp.put('/release', description='发布,true为可检索false为不可检索')
@@ -87,7 +95,6 @@ def update(
 #         raise HTTPException(status_code=403, detail='权限不足')
 
 
-
 # @bp.put('/to_outline', description='将文章变回草稿,不论它在哪')
 # def to_outline(
 #         article_id: int,
@@ -99,7 +106,6 @@ def update(
 #         return crud.return_to_outline(db, article_id)
 #     else:
 #         raise HTTPException(status_code=403, detail='权限不足')
-
 
 
 @bp.get('/self/ls',
@@ -133,7 +139,7 @@ def read_all_on_the_server(
     return rt
 
 
-@bp.delete('/delete/{id}', description='假的删除,假的!')
+@bp.delete('/delete', description='假的删除,假的!')
 def delete(
         id: int,
         now_user: User = Depends(token.get_token_func()),
