@@ -1,4 +1,5 @@
 from HtmlCreator import Html
+from HtmlCreator.Body.Image import Image
 
 from app.models.page.crud import Page
 from fastapi import APIRouter, HTTPException, Depends, Header, Request
@@ -185,7 +186,8 @@ p = Page()
 
 def get_show_creator():
     rt = Html('默认文章页面')
-    rt.body.addElement('成功进入{{ pageData.link }}页面')
+    rt.body.addElement('成功进入{{ pageData.link }}页面 图片:')\
+        .addElement(Image('{{ image }}'))
     return rt
 
 
