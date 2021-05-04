@@ -7,61 +7,63 @@ import random
 from app.models.settings.crud import settings
 from app.models.assets.crud import Assets
 
+
 # 插入category_name到文章数据里
-def return_filter(article,db: Session):
-    # 将图片名称转换为一个对象
-    if article.image is not None:
-        article.image = {"name":article.image, "url":Assets.path_to_link(article.image)}
-    else:
-        article.image = {"name":"", "url":""}
-    # 增加个分类名称的字段
-    # article.category_name = id_to_name(db, article.category_id)
-    return article
+# def return_filter(article, db: Session):
+#     # 将图片名称转换为一个对象
+#     if article.image is not None:
+#         article.image = {"name": article.image, "url": Assets.path_to_link(article.image)}
+#     else:
+#         article.image = {"name": "", "url": ""}
+#     # 增加个分类名称的字段
+#     # article.category_name = id_to_name(db, article.category_id)
+#     return article
+
 
 # 读取一个页面
 def read_one_page(db: Session, id: int):
     rt = db.query(mdl.Article).filter(mdl.Article.id == id).first()
-    return return_filter(rt,db)
+    return rt
+
 
 # 渲染用,用link读取一个页面
-def read_page_by_link(db: Session,link: str):
+def read_page_by_link(db: Session, link: str):
     article = db.query(mdl.Article).filter(mdl.Article.link == link).first()
     if article is not None:
         return article
     else:
         raise Exception("搜索文章时找不到连接为:{}的文章".format(link))
 
+
 # 获取用户id
 def get_owner_id(db: Session, id: int):
     return db.query(mdl.Article).filter(mdl.Article.id == id).first().owner_id
 
+
 # 管理员获取所有文章
-def get_all_articles(db: Session, skip = 0, limit=100):
+def get_all_articles(db: Session, skip=0, limit=100):
     rt = db.query(mdl.Article).offset(skip).limit(limit).all()
-    rt = [return_filter(x,db) for x in rt]
     return rt
 
+
 # 获取文章
-def get_user_articles(db: Session,user: User,status:int, skip = 0, limit=100):
+def get_user_articles(db: Session, user: User, status: int, skip=0, limit=100):
     articles = db.query(mdl.Article).filter(mdl.Article.owner_id == user.id).all()
-    if status == 10:
-        return [return_filter(i,db) for i in articles if i.status != -1]
-    else:
-        return [return_filter(i,db) for i in articles if i.status == status]
+    return articles
 
 
-def create(db: Session,data: orm.ArticleCreate,owner_id):
+def create(db: Session, data: orm.ArticleCreate, owner_id):
     # 对map进行预操作,以对应是否发布
-    data_map:dict = data.dict()
-    data_map['link'] = 'gg' + str(random.randint(0,100))
+    data_map: dict = data.dict()
+    data_map['link'] = 'gg' + str(random.randint(0, 100))
     if data_map.pop('is_release'):
         if data_map.pop('can_search'):
-            data_map['status']=2
+            data_map['status'] = 2
         else:
-            data_map['status']=3
+            data_map['status'] = 3
     else:
         data_map.pop('can_search')
-        data_map['status']=1
+        data_map['status'] = 1
     # 用map新建对象,准备创建
     new_Article = mdl.Article(**data_map)
     # 创建当时的时间戳
@@ -75,6 +77,7 @@ def create(db: Session,data: orm.ArticleCreate,owner_id):
     db.commit()
     return {"id": new_Article.id}
 
+
 def update(db: Session, data: orm.ArticleUpdate):
     new_data = data.dict()
     if data.link is None:
@@ -85,23 +88,27 @@ def update(db: Session, data: orm.ArticleUpdate):
     db.commit()
     return True
 
+
 # 发布
-def release(db: Session, article:orm.ArticleRelease):
-    db.query(mdl.Article).filter(mdl.Article.id == article.id).update({"status":2 if article.can_search else 3})
+def release(db: Session, article: orm.ArticleRelease):
+    db.query(mdl.Article).filter(mdl.Article.id == article.id).update({"status": 2 if article.can_search else 3})
     db.commit()
     return article.id
 
+
 # 将文章转回草稿,无论是垃圾箱还是已发布
-def return_to_outline(db: Session,id: int):
+def return_to_outline(db: Session, id: int):
     # 注意此处bug,可能被利用与恢复已完全删除的文件
-    db.query(mdl.Article).filter(mdl.Article.id == id).update({"status":1})
+    db.query(mdl.Article).filter(mdl.Article.id == id).update({"status": 1})
     db.commit()
     return id
 
+
 def delete(db: Session, article_id: int):
-    db.query(mdl.Article).filter(mdl.Article.id == article_id).update({"status":0})
+    db.query(mdl.Article).filter(mdl.Article.id == article_id).update({"status": 0})
     db.commit()
     return article_id
+
 
 def real_delete(db: Session, article_id: int):
     db.query(mdl.Article).filter(mdl.Article.id == article_id).delete()
