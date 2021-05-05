@@ -3,7 +3,7 @@ from html_builder.Body.Image import Image
 from html_builder.Body.Items import Br
 from starlette.responses import JSONResponse
 
-from app.models.page.crud import Page
+from app.models.page.crud import Page, ParamsContainer
 from fastapi import APIRouter, HTTPException, Depends, Header, Request
 from enum import Enum
 from sqlalchemy.orm import Session
@@ -112,19 +112,19 @@ def get_show_creator():
     rt = Html('默认文章页面')
     rt.body.addElement('成功进入{{ pageData.link }}页面 图片:') \
         .addElement(Br()) \
-        .addElement(Image('{{ image }}').setSize(100, 100))
+        .addElement(Image('{{ pageData.image }}').setSize(100, 100))
     return rt
 
 
 @pg_bp.get('/show/{params:path}', description='参数只有一个:link(暂时为id)')
 @p.wrap()
-def show(db, link: str):
-    article: mdl.Article = db.query(mdl.Article).filter(mdl.Article.link == link).first()
+def show(pc: ParamsContainer, link: str):
+    article: mdl.Article = pc.db.query(mdl.Article).filter(mdl.Article.link == link).first()
+    article.reset_image_url(pc.request)
     if article is not None:
-        data = {'pageData': article.__dict__,
-                'prevData': article.__dict__,
-                'nextData': article.__dict__,
-                'image': Assets.path_to_link(article.image),
+        data = {'pageData': article,
+                'prevData': article,
+                'nextData': article,
                 'category': article.category_id,
                 # 'DB_Search': self.db_search,
                 }
@@ -139,8 +139,8 @@ def get_category_list_creator():
 
 @pg_bp.get('/list/{params:path}', description='参数有一个:category_id')
 @p.wrap()
-def list_in_category(db, category_id: str):
-    context = db.query(mdl.Article).filter(mdl.Article.category_id == category_id).limit(10).all()
+def list_in_category(pc: ParamsContainer, category_id: str):
+    context = pc.db.query(mdl.Article).filter(mdl.Article.category_id == category_id).limit(10).all()
     data = {
         'image': "暂未有数据",
         'pageData': context,
