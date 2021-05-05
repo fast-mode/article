@@ -16,34 +16,6 @@ from ...models.assets.crud import Assets
 bp = APIRouter()
 
 
-# bp.route('/view')
-
-# 文章状态枚举
-
-
-class ArticleStatus(str, Enum):
-    trash = 'trash'
-    outline = 'outline'
-    online = 'online'
-    noseacrh = 'noseacrh'
-    all = 'all'
-
-    def toInt(self):
-        if self == self.trash:
-            return 0
-        elif self == self.outline:
-            return 1
-        elif self == self.online:
-            return 2
-        elif self == self.noseacrh:
-            return 3
-        else:
-            return 10
-
-
-# create
-
-
 @bp.post('/create', description='创建文章')
 def create(
         article: orm.ArticleCreate,
@@ -64,9 +36,6 @@ def create(
     return {"id": new_article.id}
 
 
-# update
-
-
 @bp.put('/update', description='更更更更更更新')
 def update(
         id: int,
@@ -77,35 +46,11 @@ def update(
     # TODO
     now_user.into_auth("arti_edit_self")
     # 增加一个更新时间戳来更新数据库
-    db.query(mdl.Article).filter(mdl.Article.id == id).update(article.dict_when_update())
+    db.query(mdl.Article)\
+        .filter(mdl.Article.id == id)\
+        .update(article.dict_when_update())
     db.commit()
     return True
-
-
-# @bp.put('/release', description='发布,true为可检索false为不可检索')
-# def release(
-#         article: orm.ArticleRelease,
-#         now_user: User = Depends(token.get_token_func()),
-#         db: Session = Depends(database.get_db)):
-#     #
-#     owner_id = crud.get_owner_id(db, article.id)
-#     if owner_id == now_user.id:
-#         return crud.release(db, article)
-#     else:
-#         raise HTTPException(status_code=403, detail='权限不足')
-
-
-# @bp.put('/to_outline', description='将文章变回草稿,不论它在哪')
-# def to_outline(
-#         article_id: int,
-#         now_user: User = Depends(token.get_token_func()),
-#         db: Session = Depends(database.get_db)):
-#     #
-#     owner_id = crud.get_owner_id(db, article_id)
-#     if owner_id == now_user.id:
-#         return crud.return_to_outline(db, article_id)
-#     else:
-#         raise HTTPException(status_code=403, detail='权限不足')
 
 
 @bp.get('/self/ls',
@@ -139,7 +84,7 @@ def read_all_on_the_server(
     return rt
 
 
-@bp.delete('/delete', description='假的删除,假的!')
+@bp.delete('/delete', description='!')
 def delete(
         id: int,
         now_user: User = Depends(token.get_token_func()),
