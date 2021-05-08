@@ -3,7 +3,7 @@ from html_builder.Body.Image import Image
 from html_builder.Body.Items import Br
 from starlette.responses import JSONResponse
 
-from app.models.page.crud import Page, ParamsContainer
+from app.models.page.crud import PageRouter, ParamsContainer
 from fastapi import APIRouter, HTTPException, Depends, Header, Request
 from enum import Enum
 from sqlalchemy.orm import Session
@@ -105,7 +105,7 @@ def delete(
 
 # 下面是关于页面渲染的代码
 pg_bp = APIRouter()
-p = Page()
+p = PageRouter()
 
 
 def get_show_creator():
