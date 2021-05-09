@@ -1,7 +1,7 @@
 from html_builder import Html
 from html_builder.Body.Image import Image
 from html_builder.Body.Items import Br
-from sqlalchemy import func
+from sqlalchemy import func, and_
 from starlette.responses import JSONResponse
 
 from app.models.page.crud import PageRouter, ParamsContainer
@@ -19,7 +19,7 @@ bp = APIRouter()
 
 # TODO:status 的功能
 
-@bp.post('/create', description='创建文章')
+@bp.post('/create', description='创建文章 # 1,草稿,2,发布,3,发布不索引')
 def create(
         article: orm.ArticleCreate,
         now_user: User = Depends(token.get_token_func()),
@@ -39,7 +39,7 @@ def create(
     return {"id": new_article.id}
 
 
-@bp.put('/update', description='更更更更更更新')
+@bp.put('/update', description='更新 # 1,草稿,2,发布,3,发布不索引')
 def update(
         id: int,
         article: orm.ArticleCreate,
@@ -61,30 +61,50 @@ def update(
 def read_self_all(
         page_index: int,
         page_size: int,
+        status: int = 0,
         now_user: User = Depends(token.get_token_func()),
         db: Session = Depends(database.get_db),
 ):
-    rt = db.query(mdl.Article) \
-        .filter(mdl.Article.owner_id == now_user.id) \
+    # 条件
+    condition = mdl.Article.owner_id == now_user.id
+    if status in {1, 2, 3}:
+        condition = and_(mdl.Article.owner_id == now_user.id, mdl.Article.status == status)
+    data = db.query(mdl.Article) \
+        .filter(condition) \
         .offset((page_index - 1) * page_size) \
         .limit(page_size) \
         .all()
-    return rt
+    count = db.query(func.count(mdl.Article.id)) \
+        .filter(condition) \
+        .scalar()
+    return {
+        'data': data,
+        'count': count,
+        'page_size': page_size,
+        'page': page_index
+    }
 
 
 @bp.get('/ls', description='读取所有的文章,admin的权限')
 def read_all_on_the_server(
         page_index: int,
         page_size: int,
+        status: int = 0,
         now_user: User = Depends(token.get_token_func()),
         db: Session = Depends(database.get_db),
 ):
-    now_user.into_auth("arti_edit_all")
+    # 条件
+    condition = mdl.Article.id > 0
+    if status in {1, 2, 3}:
+        condition = and_(mdl.Article.owner_id == now_user.id, mdl.Article.status == status)
     data = db.query(mdl.Article) \
+        .filter(condition) \
         .offset((page_index - 1) * page_size) \
         .limit(page_size) \
         .all()
-    count = db.query(func.count(mdl.Article.id)).scalar()
+    count = db.query(func.count(mdl.Article.id)) \
+        .filter(condition) \
+        .scalar()
     return {
         'data': data,
         'count': count,
