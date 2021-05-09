@@ -17,6 +17,7 @@ from app.models.mdl.page import PageOrm
 
 class ArticleCreate(PageOrm):
     category_id: Optional[int] = None
+    status: int = 1  # 1,草稿,2,发布,3,发布不索引
 
 
 class Article(PageOrm):

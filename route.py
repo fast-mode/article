@@ -1,6 +1,7 @@
 from html_builder import Html
 from html_builder.Body.Image import Image
 from html_builder.Body.Items import Br
+from sqlalchemy import func
 from starlette.responses import JSONResponse
 
 from app.models.page.crud import PageRouter, ParamsContainer
@@ -9,12 +10,14 @@ from enum import Enum
 from sqlalchemy.orm import Session
 from app.models.mdl import database
 from . import orm, mdl
-from app.models.system import token
 from app.models.user.mdl import User
 from ...models.assets.crud import Assets
+from ...models.system.check_token import token
 
 bp = APIRouter()
 
+
+# TODO:status 的功能
 
 @bp.post('/create', description='创建文章')
 def create(
@@ -46,8 +49,8 @@ def update(
     # TODO
     now_user.into_auth("arti_edit_self")
     # 增加一个更新时间戳来更新数据库
-    db.query(mdl.Article)\
-        .filter(mdl.Article.id == id)\
+    db.query(mdl.Article) \
+        .filter(mdl.Article.id == id) \
         .update(article.dict_when_update())
     db.commit()
     return True
@@ -77,11 +80,17 @@ def read_all_on_the_server(
         db: Session = Depends(database.get_db),
 ):
     now_user.into_auth("arti_edit_all")
-    rt = db.query(mdl.Article) \
+    data = db.query(mdl.Article) \
         .offset((page_index - 1) * page_size) \
         .limit(page_size) \
         .all()
-    return rt
+    count = db.query(func.count(mdl.Article.id)).scalar()
+    return {
+        'data': data,
+        'count': count,
+        'page_size': page_size,
+        'page': page_index
+    }
 
 
 @bp.delete('/delete', description='!')
