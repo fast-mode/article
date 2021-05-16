@@ -4,7 +4,7 @@ from html_builder.Body.Items import Br
 from sqlalchemy import func, and_
 from starlette.responses import JSONResponse
 
-from app.models.page.crud import PageRouter, ParamsContainer
+from app.models.page.crud import PageRouter, ParamsContainer, RequestItem
 from fastapi import APIRouter, HTTPException, Depends, Header, Request
 from enum import Enum
 from sqlalchemy.orm import Session
@@ -86,7 +86,7 @@ def article_route(bp):
             page_index: int,
             page_size: int,
             status: int = 0,
-            now_user: User = Depends(token.get_token_func()),
+            now_user: User = Depends(token.check_token),
             db: Session = Depends(database.get_db),
     ):
         # 条件
@@ -149,7 +149,8 @@ def article_page_route(pg_bp, p):
                     'category': article.category_id,
                     # 'DB_Search': self.db_search,
                     }
-            return 'article/show.html', data, get_show_creator
+            return RequestItem('article/show.html', data, get_show_creator)
+
 
     def get_category_list_creator():
         rt = Html('分类列表页面')
@@ -166,4 +167,4 @@ def article_page_route(pg_bp, p):
             # 'category': self.category,
             # 'DB_Search': self.db_search
         }
-        return 'article/list.html', data, get_category_list_creator
+        return RequestItem('article/list.html', data, get_category_list_creator)
