@@ -151,7 +151,6 @@ def article_page_route(pg_bp, p):
                     }
             return RequestItem('article/show.html', data, get_show_creator)
 
-
     def get_category_list_creator():
         rt = Html('分类列表页面')
         rt.body.addElement('成功进入分类列表页面')
