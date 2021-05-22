@@ -13,6 +13,7 @@ from . import orm, mdl
 from app.models.user.mdl import User
 from ...models.assets.crud import Assets
 from ...models.system.check_token import token
+from ...models.tools import GetListDepend
 
 
 def article_route(bp):
@@ -56,35 +57,19 @@ def article_route(bp):
     @bp.get('/self/ls',
             description='读取自己的文章')
     def read_self_all(
-            page_index: int,
-            page_size: int,
+            ls_depend: GetListDepend = Depends(),
             status: int = 0,
             now_user: User = Depends(token.get_token_func()),
             db: Session = Depends(database.get_db),
     ):
-        # 条件
         condition = mdl.Article.owner_id == now_user.id
         if status in {1, 2, 3}:
             condition = and_(mdl.Article.owner_id == now_user.id, mdl.Article.status == status)
-        data = db.query(mdl.Article) \
-            .filter(condition) \
-            .offset((page_index - 1) * page_size) \
-            .limit(page_size) \
-            .all()
-        count = db.query(func.count(mdl.Article.id)) \
-            .filter(condition) \
-            .scalar()
-        return {
-            'data': data,
-            'count': count,
-            'page_size': page_size,
-            'page': page_index
-        }
+        return ls_depend.get_request(db, mdl.Article, condition)
 
     @bp.get('/ls', description='读取所有的文章,admin的权限')
     def read_all_on_the_server(
-            page_index: int,
-            page_size: int,
+            ls_depend: GetListDepend = Depends(),
             status: int = 0,
             now_user: User = Depends(token.check_token),
             db: Session = Depends(database.get_db),
@@ -93,20 +78,7 @@ def article_route(bp):
         condition = mdl.Article.id > 0
         if status in {1, 2, 3}:
             condition = and_(mdl.Article.owner_id == now_user.id, mdl.Article.status == status)
-        data = db.query(mdl.Article) \
-            .filter(condition) \
-            .offset((page_index - 1) * page_size) \
-            .limit(page_size) \
-            .all()
-        count = db.query(func.count(mdl.Article.id)) \
-            .filter(condition) \
-            .scalar()
-        return {
-            'data': data,
-            'count': count,
-            'page_size': page_size,
-            'page': page_index
-        }
+        return ls_depend.get_request(db, mdl.Article, condition)
 
     @bp.delete('/delete', description='!')
     def delete(
