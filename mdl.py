@@ -1,6 +1,6 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
-from app.models.mdl.page import PageMdl
+from app.models.mdl import PageMdl
 
 
 class Article(PageMdl):
