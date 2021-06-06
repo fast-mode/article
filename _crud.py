@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models.user.mdl import User
+from app.models.user.mdl import UserMdl
 # from app.models.tree.crud import id_to_name
 from . import mdl, orm
 from datetime import datetime
@@ -47,7 +47,7 @@ def get_all_articles(db: Session, skip=0, limit=100):
 
 
 # 获取文章
-def get_user_articles(db: Session, user: User, status: int, skip=0, limit=100):
+def get_user_articles(db: Session, user: UserMdl, status: int, skip=0, limit=100):
     articles = db.query(mdl.Article).filter(mdl.Article.owner_id == user.id).all()
     return articles
 

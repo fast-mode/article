@@ -10,7 +10,7 @@ from enum import Enum
 from sqlalchemy.orm import Session
 from app.models.mdl import database
 from . import orm, mdl
-from app.models.user.mdl import User
+from app.models.user.mdl import UserMdl
 from ...models.assets.crud import Assets
 from ...models.system.check_token import token
 from ...models.tools import GetListDepend
@@ -22,7 +22,7 @@ def article_route(bp):
     @bp.post('/create', description='创建文章 # 1,草稿,2,发布,3,发布不索引')
     def create(
             article: orm.ArticleCreate,
-            now_user: User = Depends(token.get_token_func()),
+            now_user: UserMdl = Depends(token.check_token),
             db: Session = Depends(database.get_db)):
         now_user.into_auth("arti_edit_self")
         data_map: dict = article.dict_when_create()
@@ -42,7 +42,7 @@ def article_route(bp):
     def update(
             id: int,
             article: orm.ArticleCreate,
-            now_user: User = Depends(token.get_token_func()),
+            now_user: UserMdl = Depends(token.get_token_func()),
             db: Session = Depends(database.get_db)):
         # 如果有编辑所有权限
         # TODO
@@ -59,7 +59,7 @@ def article_route(bp):
     def read_self_all(
             ls_depend: GetListDepend = Depends(),
             status: int = 0,
-            now_user: User = Depends(token.get_token_func()),
+            now_user: UserMdl = Depends(token.get_token_func()),
             db: Session = Depends(database.get_db),
     ):
         condition = mdl.Article.owner_id == now_user.id
@@ -71,7 +71,7 @@ def article_route(bp):
     def read_all_on_the_server(
             ls_depend: GetListDepend = Depends(),
             status: int = 0,
-            now_user: User = Depends(token.check_token),
+            now_user: UserMdl = Depends(token.check_token),
             db: Session = Depends(database.get_db),
     ):
         # 条件
@@ -83,7 +83,7 @@ def article_route(bp):
     @bp.delete('/delete', description='!')
     def delete(
             id: int,
-            now_user: User = Depends(token.get_token_func()),
+            now_user: UserMdl = Depends(token.get_token_func()),
             db: Session = Depends(database.get_db)):
         article: mdl.Article = db.query(mdl.Article).filter(mdl.Article.id == id).first()
         if article is not None:
